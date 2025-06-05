@@ -7,7 +7,18 @@ $pelanggan_terdaftar = mysqli_fetch_assoc($q_total_pelanggan)['total'];
 $today = date('Y-m-d');
 $q_pelanggan_hari_ini = mysqli_query($connection, "SELECT COUNT(*) as total FROM penjualan WHERE DATE(tanggal_masuk) = '$today'");
 $pelanggan_hari_ini = mysqli_fetch_assoc($q_pelanggan_hari_ini)['total'];
-$deposit = $deposit = mysqli_query($connection, "SELECT deposit.*, pelanggan.nama FROM deposit JOIN pelanggan ON deposit.id_pelanggan = pelanggan.id_pelanggan");
+$pemasukan = mysqli_query($connection, "
+  SELECT 
+    penjualan.id_penjualan,
+    pelanggan.nama,
+    penjualan.tanggal_masuk,
+    penjualan.total,
+    penjualan.sub_pembayaran
+  FROM penjualan 
+  JOIN pelanggan ON penjualan.id_pelanggan = pelanggan.id_pelanggan
+  ORDER BY penjualan.tanggal_masuk DESC
+  LIMIT 10
+");
 $pegawai = mysqli_query($connection, "
   SELECT 
     pegawai.*, 
@@ -45,22 +56,22 @@ $pegawai = mysqli_query($connection, "
 
   <div class="row">
     <div class="col-md-6">
-      <h5>Deposit Pelanggan</h5>
+      <h5>Data Pemasukan Laundry</h5>
       <table class="table table-bordered table-sm">
         <thead>
           <tr>
             <th>Nama</th>
-            <th>Deposit Masuk</th>
-            <th>Deposit Keluar</th>
+            <th>Tanggal</th>
+            <th>Total</th>
             <th>Dilihat</th>
           </tr>
         </thead>
         <tbody>
-          <?php while ($d = mysqli_fetch_assoc($deposit)) { ?>
+          <?php while ($d = mysqli_fetch_assoc($pemasukan)) { ?>
             <tr>
               <td><?php echo $d['nama']; ?></td>
-              <td><?php echo $d['deposit_masuk']; ?></td>
-              <td><?php echo $d['deposit_keluar']; ?></td>
+              <td><?php echo date('d/m/Y', strtotime($d['tanggal_masuk'])); ?></td>
+              <td>Rp <?php echo number_format($d['total'], 0, ',', '.'); ?></td>
               <td><i class="fa fa-eye"></i></td>
             </tr>
           <?php } ?>
